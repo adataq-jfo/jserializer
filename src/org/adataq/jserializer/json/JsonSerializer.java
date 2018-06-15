@@ -54,16 +54,16 @@ public class JsonSerializer{
 		//get each field of the object
 		for (String fname : metadata.getFields().keySet()) {
 			
-			//Try to find the attribute in the json object
-			JsonAttribute jsonAttribute = jsonObject.getAttribute(fname);
+			//Get the serialization field
+			SerializationField field = metadata.getFields().get(fname);
+			
+			//Try to find the attribute in the json object with the input field name
+			JsonAttribute jsonAttribute = jsonObject.getAttribute(field.getInputName());
 			
 			//If the JSON attribute does not exists, go to the next one
 			if(jsonAttribute == null) {
 				continue;
 			}
-			
-			//get the serialization field
-			SerializationField field = metadata.getFields().get(fname);
 			
 			//Check if field has authority to write the value (from @SerializationAccess(writable (bool))
 			if(!field.isWriteable()) {
@@ -405,6 +405,9 @@ public class JsonSerializer{
 			
 			//Get serialization field form metadata
 			SerializationField field = metadata.getFields().get(fname);
+			
+			//Change the name by the output name of the serialization field
+			fname = field.getOutputName();
 			
 			//Check in the ClassMetadata if the field has authority to read. The authority is defined
 			//by the @SerializationAccess(read (boolean)) annotation

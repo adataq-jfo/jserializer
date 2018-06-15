@@ -28,7 +28,10 @@ public class JsonValue implements JsonData {
 	}
 	
 	public static boolean isJsonRawData(Object value) {
-		if(value.getClass().isPrimitive()) {
+		if(value == null) {
+			return true;
+		}
+		else if(value.getClass().isPrimitive()) {
 			return true;
 		}else if((value instanceof Boolean) || (value instanceof Number) || (value instanceof String) || (value instanceof Date) || (value instanceof Collection) || (value instanceof Object[]) || (value.getClass().isEnum())) {
 			return true;

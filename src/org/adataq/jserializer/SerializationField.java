@@ -8,6 +8,14 @@ import java.lang.reflect.Modifier;
 
 public class SerializationField {
 	
+	private String outputName;
+	
+	private String[] outputPattern;
+	
+	private String inputName;
+	
+	private String[] inputPattern;
+	
 	private Field field;
 	
 	private Method getMethod;
@@ -22,17 +30,42 @@ public class SerializationField {
 		this.field = field;
 		this.getMethod = getMethod;
 		this.setMethod = setMethod;
-		checkIfIsReadableAndWritable();
+		this.outputName = field.getName();
+		this.inputName = field.getName();
+		processFieldAnnotations();
 	}
 	
-	private void checkIfIsReadableAndWritable() {
+	/**
+	 * Read {@link SerializationAccess} annotation from the field and check if is readable and writable.
+	 * The defualt value from this fields is <b>true</b>.<br/>
+	 */
+	private void processFieldAnnotations() {
 		
-		//Get each annotation and check if it has SerializationAccess
+		//Get each annotation from field
 		for (Annotation ann : field.getAnnotations()) {
+			
+			//Check for access data (writable and readable)
 			if(ann instanceof SerializationAccess) {
 				isReadable = ((SerializationAccess) ann).readable();
 				isWriteable = ((SerializationAccess) ann).writable();
-				break;
+			}
+			//Check for attribute specific parameters (name and pattern)
+			else if(ann instanceof SerializationAttribute) {
+				outputName = ((SerializationAttribute) ann).name();
+				outputPattern = ((SerializationAttribute) ann).pattern();
+				
+				inputName = ((SerializationAttribute) ann).name();
+				inputPattern = ((SerializationAttribute) ann).pattern();
+			}
+			//Check for specific attributes in output data
+			else if(ann instanceof SerializationOutput) {
+				outputName = ((SerializationAttribute) ann).name();
+				outputPattern = ((SerializationAttribute) ann).pattern();
+			}
+			//Check for specific attributes in input data
+			else if(ann instanceof SerializationInput) {
+				inputName = ((SerializationAttribute) ann).name();
+				inputPattern = ((SerializationAttribute) ann).pattern();
 			}
 		}
 		
@@ -78,4 +111,23 @@ public class SerializationField {
 		return (field.getType().isPrimitive() || (field.getType().equals(String.class)));
 	}
 
+	public String getOutputName() {
+		return outputName;
+	}
+
+	public String[] getOutputPattern() {
+		return outputPattern;
+	}
+
+	public String getInputName() {
+		return inputName;
+	}
+
+	public String[] getInputPattern() {
+		return inputPattern;
+	}
+
+	public Method getSetMethod() {
+		return setMethod;
+	}
 }

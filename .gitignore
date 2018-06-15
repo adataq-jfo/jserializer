@@ -1,3 +1,4 @@
 bin/
 src/io/felipepoliveira/jserializer/tests
 output/
+src/org/adataq/jserializer/tests/
