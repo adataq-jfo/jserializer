@@ -89,14 +89,9 @@ public class JsonSerializer{
 				!ifInnerCollection(value, object, field) &&
 				!ifInnerMap(value, object, field)) {
 			try {
+				
 				//Check if the current object is not a json raw data (is a Object)
-				if(!JsonValue.isJsonRawData(object)) {
-					field.setValueFromSetMethodOrField(object, adaptJsonValueToObjectField(value, field.getField()));
-				}
-				//Otherwise, put the value from the field directly in the object
-				else {
-					object = value.getOriginalValue();
-				}
+				field.setValueFromSetMethodOrField(object, adaptJsonValueToObjectField(value, field.getField()));
 				
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				throw new RuntimeException(e);
@@ -173,10 +168,37 @@ public class JsonSerializer{
 	 * @param targetField
 	 * @return
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static Object adaptJsonValueToObjectField(JsonValue value, Field targetField) {
 		//If the value is a String, call the JsonValue.asString() method to remove the escaped characters
 		if(!value.isNull() && String.class.isAssignableFrom(targetField.getType())) {
 			return value.asString();
+		}
+		//Check if the value is a Enumeration
+		else if(targetField.getType().isEnum()) {
+			return Enum.valueOf((Class<Enum>) targetField.getType(), value.asString());
+		}
+		//Check if the value is a primitive types
+		else if(Double.class.isAssignableFrom(targetField.getType())) {
+			return value.asDouble();
+		}
+		else if(Float.class.isAssignableFrom(targetField.getType())) {
+			return value.asFloat();
+		}
+		else if(Long.class.isAssignableFrom(targetField.getType())) {
+			return value.asLong();
+		}
+		else if(Integer.class.isAssignableFrom(targetField.getType())) {
+			return value.asInt();
+		}
+		else if(Short.class.isAssignableFrom(targetField.getType())) {
+			return value.asShort();
+		}
+		else if(Byte.class.isAssignableFrom(targetField.getType())) {
+			return value.asByte();
+		}
+		else if(Boolean.class.isAssignableFrom(targetField.getType())) {
+			return value.asBoolean();
 		}
 		//If is not an special case, get the original value directly
 		else {
@@ -239,9 +261,7 @@ public class JsonSerializer{
 	 */
 	private static boolean ifInnerArray(JsonValue jsonValue, Object object, SerializationField field) {
 		
-		if(jsonValue.isJsonArray() && field.getField().getType().isArray()) {
-			System.out.println("Array detected");
-			
+		if(jsonValue.isJsonArray() && field.getField().getType().isArray()) {			
 			//Get the value as JsonArray
 			JsonArray jsonArray = jsonValue.asJsonArray();
 			
@@ -268,9 +288,7 @@ public class JsonSerializer{
 	private static boolean ifInnerCollection(JsonValue jsonValue, Object object, SerializationField field) {
 		
 			
-		if(jsonValue.isJsonArray() && Collection.class.isAssignableFrom(field.getField().getType())) {
-			System.out.println("Collection detected");
-			
+		if(jsonValue.isJsonArray() && Collection.class.isAssignableFrom(field.getField().getType())) {			
 			
 			//Get the generic type inside the collection type
 			String genericCollectionTypeName = field.getField().getGenericType().toString();
@@ -310,7 +328,6 @@ public class JsonSerializer{
 	
 	private static boolean ifInnerMap(JsonValue jsonValue, Object object, SerializationField field) {
 		if(field.getField().getType().equals(Map.class)) {
-			System.out.println("Map detected");
 			return true;
 		}else {
 			return false;

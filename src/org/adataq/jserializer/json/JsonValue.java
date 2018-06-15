@@ -57,17 +57,25 @@ public class JsonValue implements JsonData {
 		//Check if is a Boolean value
 		}else if(value.equals("true") || value.equals("false")) {
 			return new JsonValue(Boolean.parseBoolean(value));
+		}
+		//Check if is a float number
+		else if(value.matches("^\\d+\\.\\d*$")) {
+			return new JsonValue(Double.parseDouble(value));
 		//Check if is a integer number
 		}else if(value.matches("^\\d+$")) {
 			return new JsonValue(Long.parseLong(value));
 		}
-		//Check if is a float number
-		else if(value.matches("^\\d+\\.$")) {
-			return new JsonValue(Double.parseDouble(value));
-		}
 		//Throw parse exception
 		else {
 			throw new JsonParseException("The value '" + value + "' is not a valid json value");
+		}
+	}
+	
+	public boolean asBoolean() {
+		try {
+			return Boolean.parseBoolean(this.asString());
+		} catch (Exception e) {
+			throw new InvalidValueCastException("The value '" + this.toString() + "' can not be cast to long");
 		}
 	}
 	
@@ -105,6 +113,32 @@ public class JsonValue implements JsonData {
 	public int asInt() {
 		try {
 			return Integer.parseInt(this.asString());
+		} catch (Exception e) {
+			throw new InvalidValueCastException("The value '" + this.toString() + "' can not be cast to int");
+		}
+	}
+	
+	/**
+	 * Cast the JSON value to short
+	 * @throws InvalidValueCastException If the value can not be cast to short value
+	 * @return
+	 */
+	public int asShort() {
+		try {
+			return Short.parseShort(this.asString());
+		} catch (Exception e) {
+			throw new InvalidValueCastException("The value '" + this.toString() + "' can not be cast to int");
+		}
+	}
+	
+	/**
+	 * Cast the JSON value to byte
+	 * @throws InvalidValueCastException If the value can not be cast to byte value
+	 * @return
+	 */
+	public int asByte() {
+		try {
+			return Byte.parseByte(this.asString());
 		} catch (Exception e) {
 			throw new InvalidValueCastException("The value '" + this.toString() + "' can not be cast to int");
 		}
